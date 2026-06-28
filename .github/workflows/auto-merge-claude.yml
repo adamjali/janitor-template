@@ -1,0 +1,21 @@
+name: auto-merge-claude
+on:
+  push:
+    branches: ['claude/**']
+permissions:
+  contents: write
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0, ref: main }
+      - name: Merge claude/** branch into main
+        run: |
+          set -e
+          git config user.name "auto-merge-bot"
+          git config user.email "auto-merge@users.noreply.github.com"
+          BR="${GITHUB_REF#refs/heads/}"
+          git fetch origin "$BR"
+          git merge --no-edit "origin/$BR" || git merge -X theirs --no-edit "origin/$BR"
+          git push origin main
